@@ -1,0 +1,8 @@
+# franjas.txt
+# Formato: una franja por linea: hh:mm-hh:mm
+# Deben listarse en orden ascendente (de la primera a la ultima hora).
+# NOTA: donde se declaran los dias y como se combinan con las franjas
+# es decision pendiente de esta misma issue (parte de Pablo).
+07:00-09:00
+09:00-11:00
+11:00-13:00

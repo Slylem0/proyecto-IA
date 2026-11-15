@@ -1,0 +1,6 @@
+# profesores.txt
+# Formato: un profesor por linea, un solo campo (el nombre).
+# Ver docs/formato_datos.md para las reglas completas.
+Prof_A
+Prof_B
+Prof_C

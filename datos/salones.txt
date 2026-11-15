@@ -1,0 +1,4 @@
+# salones.txt
+# Formato: un salon por linea, un solo campo (el nombre).
+S101
+S102
