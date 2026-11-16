@@ -140,9 +140,10 @@ class TestContrato(unittest.TestCase):
         self.assertTrue(self.p.es_valida(
             base, Accion(CLASES[1], "Martes", "07-09", "S101")))
         # restricciones_cumplidas tambien detecta el conflicto
-        malo = Estado()
-        malo.asignaciones[CLASES[0]] = ("Lunes", "07-09", "S101")
-        malo.asignaciones[CLASES[1]] = ("Lunes", "07-09", "S102")
+        malo = Estado({
+            CLASES[0]: ("Lunes", "07-09", "S101"),
+            CLASES[1]: ("Lunes", "07-09", "S102"),
+        })
         self.assertFalse(self.p.restricciones_cumplidas(malo))
 
 
