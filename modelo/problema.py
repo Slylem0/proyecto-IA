@@ -59,7 +59,9 @@ class ProblemaHorario(Problema):
                 for salon in self.salones:
                     accion = Accion(clase, dia, franja, salon)
                     if self.es_valida(estado, accion):
-                        asignadas = dict(estado.asignaciones)
+                        # la propiedad asignaciones ya devuelve una copia,
+                        # se puede llenar sin tocar el estado original
+                        asignadas = estado.asignaciones
                         asignadas[clase] = (dia, franja, salon)
                         nuevo = Estado(asignadas, estado.pendientes[1:])
                         sucesores.append((accion, nuevo))

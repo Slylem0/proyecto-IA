@@ -16,32 +16,44 @@ class Accion:
 
 
 class Estado:
-    """Estado parcial del horario.
+    """Estado parcial del horario (inmutable).
 
-    - asignaciones: diccionario {clase: (dia, franja, salon)}
-      donde clase es la tupla (materia, profesor, grupo)
+    - asignaciones: propiedad que devuelve un diccionario nuevo
+      {clase: (dia, franja, salon)}, donde clase es la tupla
+      (materia, profesor, grupo)
     - pendientes: tupla con las clases que aun no tienen horario
 
-    Por convencion un Estado no se modifica despues de crearse (no hay
-    metodos que lo cambien) y define __eq__ y __hash__, de modo que se
-    puede usar en conjuntos de visitados y compararlo con ==.
+    Internamente las asignaciones se guardan como frozenset y las
+    pendientes como tupla, de modo que ninguna de las dos se puede
+    cambiar despues de crear el estado. El estado define __eq__ y
+    __hash__, asi que sirve como elemento de un conjunto de visitados.
     """
 
-    __slots__ = ("asignaciones", "pendientes")
+    __slots__ = ("_asignaciones", "_pendientes")
 
     def __init__(self, asignaciones=None, pendientes=None):
-        # copiamos para que dos estados no compartan la misma estructura
-        self.asignaciones = dict(asignaciones) if asignaciones else {}
-        self.pendientes = tuple(pendientes) if pendientes else ()
+        # se guardan como frozenset/tupla para que no se puedan cambiar
+        self._asignaciones = (
+            frozenset(asignaciones.items()) if asignaciones else frozenset())
+        self._pendientes = tuple(pendientes) if pendientes else ()
+
+    @property
+    def asignaciones(self):
+        """Copia del diccionario de asignaciones (nueva en cada acceso)."""
+        return dict(self._asignaciones)
+
+    @property
+    def pendientes(self):
+        return self._pendientes
 
     def __eq__(self, otro):
         return (isinstance(otro, Estado)
-                and self.asignaciones == otro.asignaciones
-                and self.pendientes == otro.pendientes)
+                and self._asignaciones == otro._asignaciones
+                and self._pendientes == otro._pendientes)
 
     def __hash__(self):
-        return hash((frozenset(self.asignaciones.items()), self.pendientes))
+        return hash((self._asignaciones, self._pendientes))
 
     def __repr__(self):
         return "Estado(asignadas=%d, pendientes=%d)" % (
-            len(self.asignaciones), len(self.pendientes))
+            len(self._asignaciones), len(self._pendientes))
