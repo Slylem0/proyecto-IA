@@ -1,8 +1,7 @@
 # cursos.txt
 # Formato: una clase por linea: materia;profesor;grupo
 # El profesor debe existir en profesores.txt.
-# NOTA: en que archivo se declara el grupo es decision pendiente
-# de esta misma issue (parte de Pablo); por ahora queda aqui.
+# El grupo de estudiantes de cada clase se declara aqui (tercer campo).
 Calculo;Prof_A;G1
 Algebra;Prof_A;G2
 Fisica;Prof_B;G1

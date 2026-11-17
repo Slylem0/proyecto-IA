@@ -29,6 +29,14 @@ def leer_lineas(nombre):
     return utiles
 
 
+def leer_franjas():
+    """Separa franjas.txt en (dias, franjas).
+    La primera linea util es dias;Dia1;Dia2;... y el resto son franjas."""
+    lineas = leer_lineas("franjas.txt")
+    dias = lineas[0].split(";")[1:]
+    return dias, lineas[1:]
+
+
 def hay_repetidos(lista):
     return len(lista) != len(set(lista))
 
@@ -82,8 +90,19 @@ class TestFormatoDatos(unittest.TestCase):
 
     # --- franjas ---------------------------------------------------------
 
+    def test_franjas_primera_linea_son_dias(self):
+        primera = leer_lineas("franjas.txt")[0]
+        self.assertTrue(primera.startswith("dias;"),
+                        "la primera linea debe ser dias;Dia1;Dia2;...")
+        dias, _ = leer_franjas()
+        self.assertGreater(len(dias), 0, "debe haber al menos un dia")
+        for dia in dias:
+            self.assertNotEqual(dia.strip(), "", "no puede haber dias vacios")
+        self.assertFalse(hay_repetidos(dias), "no puede haber dias repetidos")
+
     def test_franjas_formato_horario(self):
-        for linea in leer_lineas("franjas.txt"):
+        _, franjas = leer_franjas()
+        for linea in franjas:
             m = FRANJA_RE.match(linea)
             self.assertIsNotNone(
                 m, "franja invalida: " + linea + " (debe ser hh:mm-hh:mm)")
@@ -97,7 +116,7 @@ class TestFormatoDatos(unittest.TestCase):
             h1, m1, _, _ = [int(g) for g in m.groups()]
             return h1 * 60 + m1
 
-        franjas = leer_lineas("franjas.txt")
+        _, franjas = leer_franjas()
         inicios = [en_minutos(f) for f in franjas]
         self.assertEqual(inicios, sorted(inicios),
                          "las franjas deben ir en orden ascendente")

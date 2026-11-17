@@ -1,8 +1,10 @@
 # franjas.txt
-# Formato: una franja por linea: hh:mm-hh:mm
-# Deben listarse en orden ascendente (de la primera a la ultima hora).
-# NOTA: donde se declaran los dias y como se combinan con las franjas
-# es decision pendiente de esta misma issue (parte de Pablo).
+# Primera linea util: los dias de la semana, con el formato
+#   dias;Dia1;Dia2;...
+# Las demas lineas: una franja por linea: hh:mm-hh:mm
+# Las franjas deben listarse en orden ascendente (de la primera a la
+# ultima hora). Todas las franjas existen en todos los dias.
+dias;Lunes;Martes;Miercoles
 07:00-09:00
 09:00-11:00
 11:00-13:00

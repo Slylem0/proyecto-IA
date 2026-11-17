@@ -60,10 +60,9 @@ Calculo;Prof_A;G1
 Algebra;Prof_A;G2
 ```
 
-> **Nota:** el enunciado deja pendiente decidir en que archivo se declara
-> el grupo de estudiantes de cada clase. Por ahora se incluye aqui
-> como tercer campo; si se decide mover a otro archivo, este formato
-> se actualizara.
+El grupo de estudiantes se declara aqui, como tercer campo, porque cada
+clase pertenece a exactamente un grupo (es un atributo de la clase, igual
+que el profesor) y la interfaz solo carga cuatro archivos.
 
 ## salones.txt
 
@@ -85,13 +84,19 @@ S102
 
 ## franjas.txt
 
-Una franja horaria por linea, con un solo campo:
+La primera linea util declara los dias de la semana; las siguientes son
+las franjas horarias, una por linea:
 
 ```
+dias;Dia1;Dia2;...
 hh:mm-hh:mm
 ```
 
-- **Campos obligatorios:** la franja en formato `hh:mm-hh:mm`,
+- **Linea de dias:** empieza con `dias` y le siguen uno o mas dias
+  separados por `;`. Ningun dia puede quedar vacio ni repetirse.
+  Todas las franjas existen en todos los dias, asi que el horario es una
+  grilla regular de franjas x dias.
+- **Campos obligatorios de cada franja:** la franja en formato `hh:mm-hh:mm`,
   con dos digitos para la hora y dos para los minutos
   (por ejemplo `07:00-09:00`, no `7:00-9:00`).
 - **Restricciones:**
@@ -101,13 +106,14 @@ hh:mm-hh:mm
 Ejemplo:
 
 ```
+dias;Lunes;Martes;Miercoles
 07:00-09:00
 09:00-11:00
 ```
 
-> **Nota:** el enunciado deja pendiente definir donde se declaran los
-> dias (semana) y como se combinan con las franjas. Esa decision
-> completara este formato mas adelante.
+Los dias se declaran aqui y no en un archivo aparte porque la interfaz
+solo carga cuatro archivos, y porque `ProblemaHorario` recibe los dias y
+las franjas como dos listas separadas que se combinan entre si.
 
 ## Resumen
 
@@ -116,4 +122,4 @@ Ejemplo:
 | profesores.txt  | (ninguno) | `nombre`                    | nombre                            |
 | cursos.txt      | `;`       | `materia;profesor;grupo`    | materia + profesor + grupo        |
 | salones.txt     | (ninguno) | `nombre`                    | nombre                            |
-| franjas.txt     | (ninguno) | `hh:mm-hh:mm`               | franja (y orden ascendente)       |
+| franjas.txt     | `;` (linea de dias) | `dias;Dia1;...` y luego `hh:mm-hh:mm` | dia; franja (y orden ascendente) |
