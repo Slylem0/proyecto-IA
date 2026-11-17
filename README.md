@@ -8,7 +8,10 @@ clase una franja horaria y un salón, garantizando que no se presenten
 conflictos. El problema es un CSP (Problema de Satisfacción de Restricciones)
 y se resuelve comparando 4 estrategias de búsqueda:
 
-- **No informada:** amplitud (BFS), costo uniforme y profundidad iterativa
+- **No informada:** amplitud (BFS), costo uniforme y profundidad
+  iterativa (IDDFS). *Nota: el enunciado dice "profundidad interactiva"
+  y el boceto de la GUI muestra "DFS"; el nombre "IDDFS" está por
+  confirmar con el profesor.*
 - **Informada:** A*
 
 ## Estructura del proyecto
@@ -56,8 +59,15 @@ Los módulos se comunican solo por la interfaz definida en la issue #1:
     `es_meta(estado)` y `costo(estado, accion)`.
   - `ProblemaHorario`: implementación concreta; sus `sucesores` solo producen
     estados que cumplen las restricciones duras.
-  - `Resultado(algoritmo, solucion, nodos_explorados, tiempo)`: lo que
-    devuelve cualquier algoritmo (ver abajo).
+- **Orden de selección de clases** (documentado en `siguiente_clase()`):
+  `sucesores` asigna siempre la **primera clase pendiente** (`pendientes[0]`),
+  es decir, las clases se asignan en el orden en que se declararon en el
+  problema (el orden de `cursos.txt`). Con ese orden fijo, cada nivel del
+  árbol de búsqueda asigna siempre la misma clase y el recorrido es
+  reproducible de una corrida a otra.
+- **Dominio por clase** (`dominio(estado, clase)`): combinaciones
+  `(día, franja, salón)` que no violan restricciones duras con las clases
+  ya asignadas. `sucesores` se construye a partir de este dominio.
 - **`algoritmos`** implementan las estrategias de búsqueda consumiendo
   únicamente la interfaz de `Problema` (no conocen los detalles del horario).
   Cada algoritmo devuelve un `Resultado` con la solución (si existe), el
@@ -67,39 +77,6 @@ Los módulos se comunican solo por la interfaz definida en la issue #1:
 - **`datos`** contiene los archivos `.txt` cuyo formato está definido en
   [docs/formato_datos.md](docs/formato_datos.md).
 - **`pruebas`** contiene las pruebas con `unittest` de todos los módulos.
-
-### Resultado de una búsqueda
-
-Los cuatro algoritmos devuelven un objeto `Resultado` (`modelo/resultado.py`),
-así la GUI muestra la grilla y la tabla de estadísticas igual sin importar
-qué algoritmo se ejecutó.
-
-| Campo              | Qué guarda                                                  |
-|--------------------|-------------------------------------------------------------|
-| `algoritmo`        | Nombre que se muestra: `BFS`, `Costo uniforme`, `IDDFS`, `A*` |
-| `solucion`         | El `Estado` meta encontrado, o `None` si no hubo solución   |
-| `nodos_explorados` | Cuántos nodos se expandieron                                |
-| `tiempo`           | Segundos que tardó la búsqueda                              |
-
-`encontrada` no se guarda: es una propiedad que vale `True` cuando
-`solucion` no es `None`, así nunca puede contradecir a la solución.
-
-Para que la tabla compare los algoritmos de forma justa, todos miden igual:
-
-- **Nodo explorado:** se suma 1 cada vez que un nodo se saca de la frontera
-  para expandirlo (generar sus sucesores). Los nodos generados que nunca se
-  expanden no cuentan.
-- **Tiempo:** se toma `time.perf_counter()` justo antes y justo después de
-  la búsqueda; el tiempo es la resta.
-
-### Decisiones sobre los datos
-
-- El **grupo** de cada clase se declara en `cursos.txt` (tercer campo).
-- Los **días** se declaran en la primera línea útil de `franjas.txt`
-  (`dias;Lunes;Martes;...`); todas las franjas existen en todos los días.
-
-Los detalles y su justificación están en
-[docs/formato_datos.md](docs/formato_datos.md).
 
 ## Restricciones del enunciado
 
