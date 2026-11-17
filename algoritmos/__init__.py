@@ -1,5 +1,9 @@
 # algoritmos/__init__.py
-# Paquete de algoritmos de busqueda:
-# amplitud (BFS), costo uniforme, profundidad iterativa y A*.
-# Se implementan en las issues siguientes.
+# Paquete de algoritmos de busqueda del proyecto.
+# Cada algoritmo recibe un Problema (la interfaz de modelo) y devuelve
+# un Resultado con la solucion (o None), los nodos explorados y el tiempo.
+# Los algoritmos no conocen los detalles del horario: solo usan la
+# interfaz de Problema, tal como dice el contrato entre modulos.
 
+from algoritmos.amplitud import bfs
+from algoritmos.profundidad_iterativa import profundidad_iterativa
