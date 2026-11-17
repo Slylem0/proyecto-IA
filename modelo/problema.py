@@ -40,31 +40,67 @@ class ProblemaHorario(Problema):
         """Estado inicial: ninguna clase asignada, todas pendientes."""
         return Estado({}, self.clases)
 
+    def siguiente_clase(self, estado):
+        """Clase que se asigna en el siguiente paso.
+
+        Orden de seleccion: se toma siempre la PRIMERA clase pendiente
+        (pendientes[0]), es decir, las clases se asignan en el orden en
+        que se declararon en el problema (el orden de cursos.txt).
+
+        Por que ese orden:
+        - cada nivel del arbol de busqueda asigna siempre la misma clase,
+          de modo que no aparecen estados equivalentes que solo se
+          diferencian en el orden en que se asignaron;
+        - el recorrido del arbol es reproducible de una corrida a otra.
+
+        Devuelve None si no queda ninguna clase pendiente.
+        """
+        if estado.pendientes:
+            return estado.pendientes[0]
+        return None
+
+    def dominio(self, estado, clase):
+        """Dominio de una clase en un estado.
+
+        Son todas las combinaciones (dia, franja, salon) que no violan
+        restricciones duras con las clases ya asignadas:
+        - salon ocupado en esa franja
+        - el profesor de la clase ya dicta otra en esa franja
+        - el grupo de la clase ya tiene otra en esa franja
+
+        Devuelve una lista de tuplas (dia, franja, salon).
+        """
+        dominio = []
+        for dia in self.dias:
+            for franja in self.franjas:
+                for salon in self.salones:
+                    if self.es_valida(estado, Accion(clase, dia, franja, salon)):
+                        dominio.append((dia, franja, salon))
+        return dominio
+
     def sucesores(self, estado):
         """Genera los sucesores de un estado.
 
-        Toma la primera clase pendiente y prueba todas las combinaciones
-        (dia, franja, salon). Solo se aceptan las que no violan
+        En cada paso se asigna la siguiente clase pendiente (ver
+        siguiente_clase) a una de las combinaciones de su dominio (ver
+        dominio). Solo se aceptan combinaciones que no violan
         restricciones duras, asi los sucesores siempre son validos.
 
         Devuelve una lista de pares (accion, estado_siguiente).
         """
         sucesores = []
-        if not estado.pendientes:
+        clase = self.siguiente_clase(estado)
+        if clase is None:
             return sucesores
 
-        clase = estado.pendientes[0]
-        for dia in self.dias:
-            for franja in self.franjas:
-                for salon in self.salones:
-                    accion = Accion(clase, dia, franja, salon)
-                    if self.es_valida(estado, accion):
-                        # la propiedad asignaciones ya devuelve una copia,
-                        # se puede llenar sin tocar el estado original
-                        asignadas = estado.asignaciones
-                        asignadas[clase] = (dia, franja, salon)
-                        nuevo = Estado(asignadas, estado.pendientes[1:])
-                        sucesores.append((accion, nuevo))
+        for dia, franja, salon in self.dominio(estado, clase):
+            accion = Accion(clase, dia, franja, salon)
+            # la propiedad asignaciones ya devuelve una copia,
+            # se puede llenar sin tocar el estado original
+            asignadas = estado.asignaciones
+            asignadas[clase] = (dia, franja, salon)
+            nuevo = Estado(asignadas, estado.pendientes[1:])
+            sucesores.append((accion, nuevo))
         return sucesores
 
     def es_meta(self, estado):
