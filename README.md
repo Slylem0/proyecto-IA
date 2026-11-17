@@ -47,8 +47,11 @@ Los módulos se comunican solo por la interfaz definida en la issue #1:
 - **`modelo`** define las piezas del problema:
   - `Accion(clase, dia, franja, salon)`: asignar una clase a una combinación.
   - `Estado`: asignaciones parciales `{clase: (dia, franja, salon)}` y clases
-    pendientes. Es inmutable por convención y hashable (usable en conjuntos
-    de visitados).
+    pendientes. Es **inmutable** (las asignaciones y las pendientes no se
+    pueden cambiar una vez creado; la propiedad `asignaciones` devuelve una
+    copia) y hashable, así que puede usarse en conjuntos de visitados.
+    Los sucesores se generan a partir de copias, nunca modificando el
+    estado original.
   - `Problema` (clase abstracta): `estado_inicial()`, `sucesores(estado)`,
     `es_meta(estado)` y `costo(estado, accion)`.
   - `ProblemaHorario`: implementación concreta; sus `sucesores` solo producen
