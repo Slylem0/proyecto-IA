@@ -6,3 +6,4 @@
 # interfaz de Problema, tal como dice el contrato entre modulos.
 
 from algoritmos.amplitud import bfs
+from algoritmos.profundidad_iterativa import profundidad_iterativa
