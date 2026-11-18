@@ -118,27 +118,48 @@ class ProblemaHorario(Problema):
         return 1
 
     def es_valida(self, estado, accion):
-        """Revisa las restricciones duras contra las clases ya asignadas:
-        - el salon no puede estar ocupado en esa franja
-        - el profesor no puede dictar dos clases en la misma franja
-        - el grupo no puede tener dos clases en la misma franja
-        """
+        """Una accion es valida si no viola ninguna de las tres
+        restricciones de choque contra las clases ya asignadas.
+        (La cuarta restriccion, que cada clase se asigne exactamente
+        una vez, se revisa en restricciones_cumplidas)."""
         dia, franja, salon = accion.dia, accion.franja, accion.salon
         profesor, grupo = accion.clase[1], accion.clase[2]
+        return (not self.choca_salon(estado, dia, franja, salon)
+                and not self.choca_profesor(estado, profesor, dia, franja)
+                and not self.choca_grupo(estado, grupo, dia, franja))
+
+    def choca_salon(self, estado, dia, franja, salon):
+        """Restriccion 1: un salon no puede tener dos clases
+        en la misma franja. True si el salon ya esta ocupado
+        en ese dia y esa franja."""
+        for (d, f, s) in estado.asignaciones.values():
+            if d == dia and f == franja and s == salon:
+                return True
+        return False
+
+    def choca_profesor(self, estado, profesor, dia, franja):
+        """Restriccion 2: un profesor no puede dictar dos clases
+        en la misma franja. True si ese profesor ya tiene una clase
+        en ese dia y esa franja."""
         for otra_clase, (d, f, s) in estado.asignaciones.items():
-            if d == dia and f == franja:
-                if s == salon:
-                    return False
-                if otra_clase[1] == profesor:
-                    return False
-                if otra_clase[2] == grupo:
-                    return False
-        return True
+            if d == dia and f == franja and otra_clase[1] == profesor:
+                return True
+        return False
+
+    def choca_grupo(self, estado, grupo, dia, franja):
+        """Restriccion 3: un grupo de estudiantes no puede tener dos
+        clases en la misma franja. True si ese grupo ya tiene una clase
+        en ese dia y esa franja."""
+        for otra_clase, (d, f, s) in estado.asignaciones.items():
+            if d == dia and f == franja and otra_clase[2] == grupo:
+                return True
+        return False
 
     def restricciones_cumplidas(self, estado):
-        """Verifica que entre las clases ya asignadas no exista ningun
-        conflicto. Sirve para comprobar en las pruebas que los sucesores
-        nunca violan las restricciones duras."""
+        """Verifica las cuatro restricciones duras del enunciado en un
+        estado. Sirve para comprobar en las pruebas que los sucesores
+        nunca las violan y para validar soluciones de los algoritmos."""
+        # restricciones 1 a 3: choques entre las clases ya asignadas
         items = list(estado.asignaciones.items())
         for i in range(len(items)):
             for j in range(i + 1, len(items)):
@@ -147,4 +168,19 @@ class ProblemaHorario(Problema):
                 if d1 == d2 and f1 == f2:
                     if s1 == s2 or c1[1] == c2[1] or c1[2] == c2[2]:
                         return False
+        # restriccion 4: cada clase asignada exactamente una vez.
+        # asignaciones es un diccionario, asi que no puede haber claves
+        # repetidas; lo que hay que revisar es que ninguna clase que
+        # sigue pendiente este ya asignada (puede pasar con estados
+        # construidos a mano)
+        for clase in estado.pendientes:
+            if clase in estado.asignaciones:
+                return False
         return True
+
+    def es_solucion_valida(self, estado):
+        """Un estado es solucion valida cuando es meta (todas las clases
+        asignadas) y ademas cumple las cuatro restricciones duras.
+        Los algoritmos de busqueda lo usan al final, como comprobacion
+        extra de la solucion encontrada."""
+        return self.es_meta(estado) and self.restricciones_cumplidas(estado)
