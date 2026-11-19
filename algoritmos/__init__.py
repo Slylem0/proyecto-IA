@@ -8,3 +8,4 @@
 from algoritmos.amplitud import bfs
 from algoritmos.profundidad_iterativa import profundidad_iterativa
 from algoritmos.costo_uniforme import costo_uniforme
+from algoritmos.a_estrella import a_estrella
