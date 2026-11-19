@@ -108,14 +108,49 @@ class ProblemaHorario(Problema):
         return len(estado.pendientes) == 0
 
     def costo(self, estado, accion):
-        """Costo de aplicar una accion en un estado.
+        """Costo de asignar una clase (issue #10).
 
-        Por ahora todas las acciones cuestan 1 (asignar una clase).
-        El costo de un camino es entonces la cantidad de clases asignadas.
-        Si mas adelante se modelan las restricciones blandas, bastaria
-        con devolver un costo mayor cuando la accion las viola.
+        cada asignacion cuesta 1, y se suma 1 por cada clase que el
+        grupo ya tiene ese mismo dia y 1 por cada clase que el profesor
+        ya dicta ese dia. asi sale mas barato repartir las clases en la
+        semana que amontonarlas en un solo dia.
+
+        nunca da menos de 1: costo uniforme necesita costos no negativos
+        y A* usa eso para que la heuristica sea admisible.
         """
-        return 1
+        profesor, grupo = accion.clase[1], accion.clase[2]
+        mismo_grupo = 0
+        mismo_profesor = 0
+        for otra, (dia, franja, salon) in estado.asignaciones.items():
+            if dia != accion.dia:
+                continue
+            if otra[2] == grupo:
+                mismo_grupo += 1
+            if otra[1] == profesor:
+                mismo_profesor += 1
+        return 1 + mismo_grupo + mismo_profesor
+
+    def costo_horario(self, estado):
+        """Costo total de un horario ya armado.
+
+        son las clases asignadas mas las parejas de clases del mismo
+        grupo el mismo dia y las parejas del mismo profesor el mismo dia.
+        da lo mismo que ir sumando costo() paso a paso, sin importar el
+        orden, porque cada pareja se cobra una sola vez (cuando llega la
+        segunda clase).
+        """
+        asignadas = list(estado.asignaciones.items())
+        total = len(asignadas)
+        for i in range(len(asignadas)):
+            for j in range(i + 1, len(asignadas)):
+                c1, (d1, f1, s1) = asignadas[i]
+                c2, (d2, f2, s2) = asignadas[j]
+                if d1 == d2:
+                    if c1[2] == c2[2]:
+                        total += 1
+                    if c1[1] == c2[1]:
+                        total += 1
+        return total
 
     def es_valida(self, estado, accion):
         """Una accion es valida si no viola ninguna de las tres
