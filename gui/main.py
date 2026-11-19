@@ -5,6 +5,7 @@ from algoritmos.amplitud import bfs
 from algoritmos.costo_uniforme import costo_uniforme
 from algoritmos.profundidad_iterativa import profundidad_iterativa
 from gui.carga import ARCHIVOS, construir_problema, leer_archivo
+from gui.estadisticas import PanelEstadisticas
 from gui.grilla import Grilla
 from modelo.lector import ErrorDeFormato
 
@@ -24,8 +25,8 @@ class Aplicacion(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Programacion Academica Universitaria")
-        self.geometry("1000x720")
-        self.minsize(760, 560)
+        self.geometry("1000x860")
+        self.minsize(760, 680)
 
         self.archivos = {}  # nombre -> ruta (None si no se ha cargado)
         self.etiquetas_ruta = {}
@@ -36,9 +37,14 @@ class Aplicacion(tk.Tk):
         self._crear_panel_carga()
         self._crear_panel_configuracion()
 
+        # estadisticas (#16) abajo, se empaca antes que la grilla para
+        # que siempre se vea aunque la ventana sea pequena
+        self.estadisticas = PanelEstadisticas(self)
+        self.estadisticas.pack(side="bottom", fill="x", padx=10, pady=(0, 10))
+
         # grilla del horario (#15), ocupa el resto de la ventana
         self.grilla = Grilla(self)
-        self.grilla.pack(fill="both", expand=True, padx=10, pady=(5, 10))
+        self.grilla.pack(fill="both", expand=True, padx=10, pady=5)
 
     def _crear_panel_carga(self):
         """Fila por archivo: boton, ruta e indicador."""
@@ -125,6 +131,7 @@ class Aplicacion(tk.Tk):
 
         resultado = algoritmo(problema)
         self.grilla.mostrar(problema, resultado)
+        self.estadisticas.agregar(problema, resultado)
 
 
 def main():
