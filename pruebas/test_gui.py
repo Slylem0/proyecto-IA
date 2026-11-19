@@ -86,10 +86,19 @@ class TestVentana(unittest.TestCase):
         self.assertIn("IDDFS", texto)
         self.assertIn("Solucion encontrada", texto)
 
-    def test_algoritmo_pendiente_avisa(self):
-        # costo uniforme y A* todavia no existen (#11 y #13)
+    def test_generar_con_costo_uniforme(self):
         self._cargar_los_cuatro(DATOS)
         self.app.combo.set("Costo uniforme")
+        with mock.patch.object(main.messagebox, "showinfo") as info:
+            self.app.generar()
+        texto = info.call_args[0][1]
+        self.assertIn("Costo uniforme", texto)
+        self.assertIn("Solucion encontrada", texto)
+
+    def test_algoritmo_pendiente_avisa(self):
+        # A* todavia no existe (#13)
+        self._cargar_los_cuatro(DATOS)
+        self.app.combo.set("A*")
         with mock.patch.object(main.messagebox, "showinfo") as info:
             self.app.generar()
         info.assert_called_once()

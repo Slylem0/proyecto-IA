@@ -7,3 +7,4 @@
 
 from algoritmos.amplitud import bfs
 from algoritmos.profundidad_iterativa import profundidad_iterativa
+from algoritmos.costo_uniforme import costo_uniforme
