@@ -127,14 +127,15 @@ class TestVentana(unittest.TestCase):
         finally:
             shutil.rmtree(carpeta)
 
-    def test_algoritmo_pendiente_avisa(self):
-        # A* todavia no existe (#13)
+    def test_generar_con_a_estrella(self):
+        # A* encuentra el horario mas barato (costo 4), igual que UCS
         self._cargar_los_cuatro(DATOS)
         self.app.combo.set("A*")
-        with mock.patch.object(main.messagebox, "showinfo") as info:
-            self.app.generar()
-        info.assert_called_once()
-        self.assertIn("no esta implementado", info.call_args[0][1])
+        self.app.generar()
+        self.assertIn("A*", self.app.grilla.mensaje.cget("text"))
+        fila = self.app.estadisticas.filas()[0]
+        self.assertEqual(fila[0], "A*")
+        self.assertEqual(fila[4], "4")
 
     def test_generar_vuelve_a_validar_los_archivos(self):
         # si un archivo cambia despues de cargarlo, generar debe avisar

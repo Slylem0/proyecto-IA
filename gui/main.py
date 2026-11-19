@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
+from algoritmos.a_estrella import a_estrella
 from algoritmos.amplitud import bfs
 from algoritmos.costo_uniforme import costo_uniforme
 from algoritmos.profundidad_iterativa import profundidad_iterativa
@@ -9,13 +10,12 @@ from gui.estadisticas import PanelEstadisticas
 from gui.grilla import Grilla
 from modelo.lector import ErrorDeFormato
 
-# algoritmos del menu (mismos nombres que pide la issue #16);
-# los que estan en None se activan cuando existan sus issues
+# algoritmos del menu (mismos nombres que pide la issue #16)
 ALGORITMOS = {
     "BFS": bfs,
     "Costo uniforme": costo_uniforme,
     "IDDFS": profundidad_iterativa,
-    "A*": None,
+    "A*": a_estrella,
 }
 
 
@@ -122,13 +122,6 @@ class Aplicacion(tk.Tk):
 
         nombre = self.combo.get()
         algoritmo = ALGORITMOS[nombre]
-        if algoritmo is None:
-            messagebox.showinfo(
-                "Algoritmo no disponible",
-                nombre + " todavia no esta implementado.\n"
-                "Se activa cuando se integre su issue.")
-            return
-
         resultado = algoritmo(problema)
         self.grilla.mostrar(problema, resultado)
         self.estadisticas.agregar(problema, resultado)
