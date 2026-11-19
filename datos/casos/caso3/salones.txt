@@ -1,0 +1,3 @@
+# salones.txt
+S101
+S102

@@ -22,6 +22,8 @@ proyecto-IA/
 ├── algoritmos/  Estrategias de busqueda (BFS, costo uniforme, profundidad iterativa, A*)
 ├── gui/         Interfaz grafica con tkinter
 ├── datos/       Archivos de entrada: profesores.txt, cursos.txt, salones.txt, franjas.txt
+│   └── casos/   caso1 ... caso8, casos de tamano creciente (issue #20)
+├── experimentos/ Generador de casos y comparacion de algoritmos (issue #20)
 ├── docs/        Documentacion (formato de datos, informes)
 └── pruebas/     Pruebas automatizadas con unittest
 ```
@@ -37,10 +39,17 @@ Correr todas las pruebas:
 python -m unittest discover -s pruebas -t . -v
 ```
 
-Abrir la interfaz gráfica (cuando esté implementada):
+Abrir la interfaz gráfica:
 
 ```bash
 python -m gui.main
+```
+
+Comparar los algoritmos en los casos de `datos/casos/` (límite en segundos
+por corrida, 60 por defecto; la tabla queda en `experimentos/resultados.md`):
+
+```bash
+python -m experimentos.comparar 60
 ```
 
 ## Contrato entre módulos

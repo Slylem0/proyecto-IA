@@ -1,0 +1,31 @@
+# cursos.txt (30 clases)
+Calculo I;Prof_A;G1
+Algebra Lineal;Prof_B;G2
+Fisica I;Prof_C;G3
+Programacion I;Prof_D;G4
+Quimica;Prof_E;G5
+Estadistica;Prof_F;G6
+Ecuaciones Diferenciales;Prof_G;G1
+Fisica II;Prof_H;G2
+Estructuras de Datos;Prof_I;G3
+Bases de Datos;Prof_J;G4
+Redes;Prof_A;G5
+Sistemas Operativos;Prof_B;G6
+Ingles I;Prof_C;G1
+Etica;Prof_D;G2
+Matematicas Discretas;Prof_E;G3
+Calculo II;Prof_F;G4
+Probabilidad;Prof_G;G5
+Arquitectura de Computadores;Prof_H;G6
+Ingenieria de Software;Prof_I;G1
+Inteligencia Artificial;Prof_J;G2
+Compiladores;Prof_A;G3
+Analisis de Algoritmos;Prof_B;G4
+Fundamentos de Lenguajes;Prof_C;G5
+Teoria de la Computacion;Prof_D;G6
+Computacion Grafica;Prof_E;G1
+Desarrollo Web;Prof_F;G2
+Seguridad Informatica;Prof_G;G3
+Sistemas Distribuidos;Prof_H;G4
+Investigacion de Operaciones;Prof_I;G5
+Electronica Digital;Prof_J;G6

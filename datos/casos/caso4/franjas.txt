@@ -1,0 +1,4 @@
+# franjas.txt
+dias;Lunes;Martes;Miercoles
+07:00-09:00
+09:00-11:00

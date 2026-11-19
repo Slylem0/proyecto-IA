@@ -1,0 +1,8 @@
+# cursos.txt (7 clases)
+Calculo I;Prof_A;G1
+Algebra Lineal;Prof_B;G2
+Fisica I;Prof_C;G3
+Programacion I;Prof_D;G1
+Quimica;Prof_A;G2
+Estadistica;Prof_B;G3
+Ecuaciones Diferenciales;Prof_C;G1
