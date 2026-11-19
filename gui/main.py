@@ -5,6 +5,7 @@ from algoritmos.amplitud import bfs
 from algoritmos.costo_uniforme import costo_uniforme
 from algoritmos.profundidad_iterativa import profundidad_iterativa
 from gui.carga import ARCHIVOS, construir_problema, leer_archivo
+from gui.grilla import Grilla
 from modelo.lector import ErrorDeFormato
 
 # algoritmos del menu (mismos nombres que pide la issue #16);
@@ -23,8 +24,8 @@ class Aplicacion(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Programacion Academica Universitaria")
-        self.geometry("780x460")
-        self.minsize(660, 400)
+        self.geometry("1000x720")
+        self.minsize(760, 560)
 
         self.archivos = {}  # nombre -> ruta (None si no se ha cargado)
         self.etiquetas_ruta = {}
@@ -34,6 +35,10 @@ class Aplicacion(tk.Tk):
 
         self._crear_panel_carga()
         self._crear_panel_configuracion()
+
+        # grilla del horario (#15), ocupa el resto de la ventana
+        self.grilla = Grilla(self)
+        self.grilla.pack(fill="both", expand=True, padx=10, pady=(5, 10))
 
     def _crear_panel_carga(self):
         """Fila por archivo: boton, ruta e indicador."""
@@ -119,20 +124,7 @@ class Aplicacion(tk.Tk):
             return
 
         resultado = algoritmo(problema)
-
-        if resultado.encontrada:
-            texto = ("Solucion encontrada con %s.\n\n"
-                     "Nodos explorados: %d\n"
-                     "Tiempo: %.4f s"
-                     % (resultado.algoritmo, resultado.nodos_explorados,
-                        resultado.tiempo))
-        else:
-            texto = ("No se encontro solucion con %s.\n\n"
-                     "Nodos explorados: %d\n"
-                     "Tiempo: %.4f s"
-                     % (resultado.algoritmo, resultado.nodos_explorados,
-                        resultado.tiempo))
-        messagebox.showinfo("Resultado", texto)
+        self.grilla.mostrar(problema, resultado)
 
 
 def main():
