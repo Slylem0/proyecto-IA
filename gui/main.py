@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
 from algoritmos.amplitud import bfs
+from algoritmos.costo_uniforme import costo_uniforme
 from algoritmos.profundidad_iterativa import profundidad_iterativa
 from gui.carga import ARCHIVOS, construir_problema, leer_archivo
 from modelo.lector import ErrorDeFormato
@@ -10,7 +11,7 @@ from modelo.lector import ErrorDeFormato
 # los que estan en None se activan cuando existan sus issues
 ALGORITMOS = {
     "BFS": bfs,
-    "Costo uniforme": None,
+    "Costo uniforme": costo_uniforme,
     "IDDFS": profundidad_iterativa,
     "A*": None,
 }
