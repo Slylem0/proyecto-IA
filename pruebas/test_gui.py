@@ -68,32 +68,49 @@ class TestVentana(unittest.TestCase):
         self.assertIn("Faltan archivos", aviso.call_args[0][0])
 
     def test_generar_con_los_cuatro_archivos(self):
+        # el horario sale en la grilla: 4 clases en 3 dias x 3 franjas
         self._cargar_los_cuatro(DATOS)
-        with mock.patch.object(main.messagebox, "showinfo") as info:
-            self.app.generar()
-        info.assert_called_once()
-        texto = info.call_args[0][1]
-        self.assertIn("Solucion encontrada", texto)
-        self.assertIn("Nodos explorados", texto)
-        self.assertIn("Tiempo", texto)
+        self.app.generar()
+        self.assertIn("Horario encontrado con BFS",
+                      self.app.grilla.mensaje.cget("text"))
+        self.assertEqual(len(self.app.grilla.celdas), 9)
+        ocupadas = [c for c in self.app.grilla.celdas.values()
+                    if c.cget("text")]
+        self.assertGreater(len(ocupadas), 0)
 
     def test_generar_con_iddfs(self):
         self._cargar_los_cuatro(DATOS)
         self.app.combo.set("IDDFS")
-        with mock.patch.object(main.messagebox, "showinfo") as info:
-            self.app.generar()
-        texto = info.call_args[0][1]
-        self.assertIn("IDDFS", texto)
-        self.assertIn("Solucion encontrada", texto)
+        self.app.generar()
+        self.assertIn("IDDFS", self.app.grilla.mensaje.cget("text"))
 
     def test_generar_con_costo_uniforme(self):
         self._cargar_los_cuatro(DATOS)
         self.app.combo.set("Costo uniforme")
-        with mock.patch.object(main.messagebox, "showinfo") as info:
+        self.app.generar()
+        self.assertIn("Costo uniforme", self.app.grilla.mensaje.cget("text"))
+
+    def test_generar_sin_solucion_avisa_en_la_grilla(self):
+        # dos clases del mismo profesor y una sola franja: no hay horario
+        carpeta = tempfile.mkdtemp()
+        try:
+            contenido = {
+                "profesores.txt": "P1\n",
+                "cursos.txt": "A;P1;G1\nB;P1;G2\n",
+                "salones.txt": "S1\nS2\n",
+                "franjas.txt": "dias;Lunes\n07:00-09:00\n",
+            }
+            for nombre, texto in contenido.items():
+                with open(os.path.join(carpeta, nombre), "w",
+                          encoding="utf-8") as f:
+                    f.write(texto)
+            self._cargar_los_cuatro(carpeta)
             self.app.generar()
-        texto = info.call_args[0][1]
-        self.assertIn("Costo uniforme", texto)
-        self.assertIn("Solucion encontrada", texto)
+            self.assertIn("No se encontro",
+                          self.app.grilla.mensaje.cget("text"))
+            self.assertEqual(self.app.grilla.celdas, {})
+        finally:
+            shutil.rmtree(carpeta)
 
     def test_algoritmo_pendiente_avisa(self):
         # A* todavia no existe (#13)
