@@ -90,6 +90,20 @@ class TestVentana(unittest.TestCase):
         self.app.generar()
         self.assertIn("Costo uniforme", self.app.grilla.mensaje.cget("text"))
 
+    def test_estadisticas_acumulan_filas(self):
+        # cada ejecucion agrega una fila; limpiar las borra todas
+        self._cargar_los_cuatro(DATOS)
+        for nombre in ["BFS", "Costo uniforme", "IDDFS"]:
+            self.app.combo.set(nombre)
+            self.app.generar()
+        filas = self.app.estadisticas.filas()
+        self.assertEqual([f[0] for f in filas],
+                         ["BFS", "Costo uniforme", "IDDFS"])
+        # costo uniforme encuentra el horario mas barato (costo 4)
+        self.assertEqual(filas[1][4], "4")
+        self.app.estadisticas.limpiar()
+        self.assertEqual(self.app.estadisticas.filas(), [])
+
     def test_generar_sin_solucion_avisa_en_la_grilla(self):
         # dos clases del mismo profesor y una sola franja: no hay horario
         carpeta = tempfile.mkdtemp()
@@ -109,6 +123,7 @@ class TestVentana(unittest.TestCase):
             self.assertIn("No se encontro",
                           self.app.grilla.mensaje.cget("text"))
             self.assertEqual(self.app.grilla.celdas, {})
+            self.assertEqual(self.app.estadisticas.filas()[0][3], "No")
         finally:
             shutil.rmtree(carpeta)
 
