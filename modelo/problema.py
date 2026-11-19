@@ -21,6 +21,13 @@ class Problema:
     def costo(self, estado, accion):
         raise NotImplementedError
 
+    def heuristica(self, estado):
+        """Estimacion de lo que falta para llegar a la meta (para A*).
+
+        por defecto es 0: con h = 0, A* hace lo mismo que costo uniforme.
+        """
+        return 0
+
 
 class ProblemaHorario(Problema):
     """Problema concreto: asignar a cada clase un (dia, franja, salon).
@@ -150,6 +157,54 @@ class ProblemaHorario(Problema):
                         total += 1
                     if c1[1] == c2[1]:
                         total += 1
+        return total
+
+    def heuristica_pendientes(self, estado):
+        """Heuristica simple (issue #12): cuantas clases faltan.
+
+        como cada asignacion cuesta al menos 1 (ver costo), lo que falta
+        cuesta como minimo una unidad por clase pendiente. es admisible
+        pero no ve los choques de dia, por eso se queda corta. se deja
+        para compararla con heuristica() en el informe.
+        """
+        return len(estado.pendientes)
+
+    def heuristica(self, estado):
+        """Heuristica de A* (issue #12).
+
+        para cada clase pendiente se calcula lo MINIMO que podria costar
+        asignarla mirando solo las clases ya asignadas: 1 mas lo que
+        cobraria el dia mas barato (clases de su grupo y de su profesor
+        que ya hay ese dia). h es la suma de esos minimos.
+
+        es admisible: cuando la clase se asigne de verdad, su dia ya
+        tiene al menos esas clases (las asignadas no se quitan), asi que
+        el costo real nunca es menor que el minimo que se estimo.
+
+        es consistente: al asignar una clase, su termino sale de h y
+        valia como mucho el costo de ese paso; los terminos de las demas
+        solo pueden subir. entonces h(n) <= costo(n, n') + h(n').
+        """
+        # cuantas clases tiene cada grupo y cada profesor en cada dia
+        por_grupo = {}
+        por_profesor = {}
+        for clase, (dia, franja, salon) in estado.asignaciones.items():
+            materia, profesor, grupo = clase
+            por_grupo[(grupo, dia)] = por_grupo.get((grupo, dia), 0) + 1
+            por_profesor[(profesor, dia)] = por_profesor.get((profesor, dia), 0) + 1
+
+        total = 0
+        for materia, profesor, grupo in estado.pendientes:
+            minimo = None
+            for dia in self.dias:
+                cargado = por_grupo.get((grupo, dia), 0) + por_profesor.get(
+                    (profesor, dia), 0
+                )
+                if minimo is None or cargado < minimo:
+                    minimo = cargado
+            if minimo is None:  # no hay dias
+                minimo = 0
+            total += 1 + minimo
         return total
 
     def es_valida(self, estado, accion):
