@@ -1,0 +1,5 @@
+# cursos.txt (4 clases)
+Calculo I;Prof_A;G1
+Algebra Lineal;Prof_B;G2
+Fisica I;Prof_A;G1
+Programacion I;Prof_B;G2

@@ -1,0 +1,16 @@
+# cursos.txt (15 clases)
+Calculo I;Prof_A;G1
+Algebra Lineal;Prof_B;G2
+Fisica I;Prof_C;G3
+Programacion I;Prof_D;G4
+Quimica;Prof_E;G5
+Estadistica;Prof_F;G1
+Ecuaciones Diferenciales;Prof_G;G2
+Fisica II;Prof_H;G3
+Estructuras de Datos;Prof_A;G4
+Bases de Datos;Prof_B;G5
+Redes;Prof_C;G1
+Sistemas Operativos;Prof_D;G2
+Ingles I;Prof_E;G3
+Etica;Prof_F;G4
+Matematicas Discretas;Prof_G;G5
