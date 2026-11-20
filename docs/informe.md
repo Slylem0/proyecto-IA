@@ -1,6 +1,14 @@
-# Generación de horarios académicos
+# Proyecto IA — Inteligencia Artificial
 
-El programa recibe una lista de clases, profesores, salones y franjas, y busca un horario sin choques. Implementamos BFS, IDDFS, costo uniforme y A* para comparar dos cosas: cuánto trabajo hace cada algoritmo y qué tan repartida queda la carga de profesores y grupos. Los cuatro se pueden ejecutar desde la misma interfaz de Tkinter.
+**Sistema de asignación de horarios universitarios**
+
+**Pablo Nicolás Marín González (2459440) · Kevin Steven Rico González (2411024)**
+
+Universidad del Valle · Inteligencia Artificial · Proyecto 1
+
+## Resumen
+
+El programa asigna a cada clase un día, una franja y un salón sin cruzar profesores, grupos ni salones. Comparamos BFS, IDDFS, costo uniforme y A* por los nodos que recorren, el tiempo que tardan y el costo del horario que encuentran. Probamos los cuatro desde la misma interfaz de Tkinter. A* resolvió siete de ocho instancias en el ensayo de 60 segundos y llegó a 30 clases. En los casos comparables con costo uniforme, ambos devolvieron el mismo costo.
 
 ## Representación del estado y espacio de búsqueda
 
@@ -34,7 +42,7 @@ Cada clase es una variable y su dominio inicial contiene las casillas posibles. 
 | Grupo | Un grupo solo puede recibir una clase por día y franja. |
 | Asignación única | Cada clase recibe una sola casilla y se retira de las pendientes. |
 
-Las tres restricciones de choque se comprueban entre pares de clases. El orden de asignación garantiza la cuarta durante la búsqueda. El modelo también ofrece una comprobación de la solución completa para las pruebas. El filtrado solo usa las asignaciones ya hechas. Si dos clases pendientes también podrían chocar, el conflicto se detecta cuando se intenta ubicar la segunda.
+Las tres restricciones de choque se comprueban entre pares de clases. El orden de asignación garantiza la cuarta durante la búsqueda. El modelo también ofrece una comprobación de la solución completa para las pruebas. Al buscar una casilla para la clase actual, revisamos los choques con las clases del horario parcial. Si dos clases siguen pendientes, comprobamos su compatibilidad al intentar ubicar la segunda.
 
 ## Función de costo
 
@@ -67,13 +75,17 @@ La segunda es admisible porque el día que finalmente se elija para cada clase t
 
 También es consistente. Cuando se asigna una clase, el término que sale de la suma es a lo sumo lo que realmente costó ese paso. Los mínimos de las demás clases se mantienen o suben, porque se agregó una asignación. Por tanto, si `s'` es un sucesor de `s`, se cumple `h(s) ≤ c(s, a) + h(s')`. En una meta la suma es cero. Con esta heurística, la primera meta que A* extrae tiene costo mínimo.
 
+## Implementación
+
+El lector valida los cuatro archivos de texto y construye el problema. El modelo genera estados compatibles y los módulos de búsqueda devuelven el horario y sus métricas. Al pulsar **Generar Horario**, Tkinter ejecuta el algoritmo en un hilo de trabajo y revisa una cola para actualizar la grilla y las estadísticas. Usamos la biblioteca estándar de Python.
+
 ## Pruebas y resultados
 
 Los [nueve casos pequeños](casos_pequenos.md) sirven para verificar el programa con resultados que se pueden contar a mano. Los seis casos factibles tienen 1, 2, 2, 8, 24 y 6 soluciones. Los otros tres aíslan un choque imposible de resolver por capacidad de profesor, salón o grupo. Las pruebas también comprueban el costo, la heurística y la validez de los horarios que devuelven los cuatro algoritmos.
 
 La prueba de extremo a extremo carga los cuatro archivos de ejemplo con los controles de Tkinter, ejecuta cada algoritmo en un hilo real y revisa que aparezcan las cuatro clases en la grilla y se agregue una fila a las estadísticas. En ese ejemplo, costo uniforme y A* encontraron un horario de costo 4, frente al costo 7 de BFS e IDDFS.
 
-La siguiente tabla resume los [resultados de los ocho casos](../experimentos/resultados.md). Cada celda muestra nodos contabilizados y costo del horario. Las corridas se limitaron a 60 segundos. El contador de IDDFS incluye las llamadas que llegan al límite y a la meta, de modo que el número de nodos y el tiempo describen aspectos distintos del trabajo.
+La siguiente tabla resume los [resultados de los ocho casos](../experimentos/resultados.md). Cada celda muestra nodos contabilizados y costo del horario. Cada combinación de caso y algoritmo se ejecutó en un proceso separado con un límite de 60 segundos. El tiempo se mide dentro de la búsqueda. El contador de IDDFS incluye las llamadas que llegan al límite y a la meta, de modo que el número de nodos y el tiempo describen aspectos distintos del trabajo.
 
 | Caso | Clases | BFS | Costo uniforme | IDDFS | A* | A* con heurística simple |
 |---|---:|---:|---:|---:|---:|---:|
@@ -88,13 +100,20 @@ La siguiente tabla resume los [resultados de los ocho casos](../experimentos/res
 
 En los casos 2 y 3, la heurística del modelo bajó las expansiones de A* de 545 a 35 y de 1.857 a 67, con el mismo costo óptimo. En esas corridas los tiempos bajaron de 0,029 a 0,002 s y de 0,078 a 0,004 s. En los casos 6 y 7 las dos heurísticas expandieron la misma cantidad de nodos y la simple tardó menos. Ambos horarios costaron exactamente lo mismo que su número de clases, así que alcanzaron la cota del costo base.
 
-El caso 8 tiene dos grupos con cuatro clases cada uno y solo tres días. Cada grupo aporta al menos una penalización por compartir día. Las cinco variantes agotaron el tiempo de ensayo. La corrida quedó sin un resultado del que se pueda concluir si existe una solución o cuál sería su costo.
+El caso 8 tiene dos grupos con cuatro clases cada uno y solo tres días. Cada grupo aporta al menos una penalización por compartir día. Las cinco variantes agotaron el tiempo de ensayo. En una comprobación aparte encontramos un horario válido de costo 10. Las ocho clases aportan 8 unidades de base. Como hay cuatro clases por grupo y tres días, al menos dos clases de cada grupo comparten día. Eso da una cota de 10. El horario de abajo la alcanza. Las dos parejas que comparten día quedan en franjas distintas y ningún profesor repite día. Esta comprobación se hizo fuera de la comparación cronometrada.
+
+| Día | Franja | S101 | S102 |
+|---|---|---|---|
+| Lunes | 07–09 | Cálculo I | Álgebra lineal |
+| Lunes | 09–11 | Física I | Programación I |
+| Martes | 07–09 | Química | Estadística |
+| Miércoles | 07–09 | Ecuaciones diferenciales | Física II |
 
 ## Conclusiones
 
 Para los casos pequeños, BFS e IDDFS encuentran horarios válidos con el mismo costo en nuestras pruebas. BFS contó menos nodos en los cuatro casos comparables. Por ejemplo, en el caso 4 IDDFS contó unas siete veces más nodos y tardó 4,869 s, frente a los 6,327 s de BFS. Costo uniforme confirmó el óptimo de A* en los tres casos que alcanzó a resolver.
 
-A* resolvió siete de los ocho casos, incluido el de 30 clases. La comparación más clara fue entre los casos 7 y 8: el primero era más grande y permitía un horario de costo base, mientras que el segundo concentraba las clases de cada grupo y agotó el tiempo disponible. Incorporar a la heurística las penalizaciones inevitables entre clases pendientes sería una forma de estudiar ese caso.
+A* resolvió siete de los ocho casos, incluido el de 30 clases. El número de clases por sí solo no explicó el tiempo de búsqueda. A* resolvió el caso 7, de 30 clases, con costo 30. En el caso 8, de apenas ocho clases, saber que cada grupo debe repetir día da una cota de 10 desde el inicio. La heurística actual solo mira las clases ya ubicadas y arranca con una cota de 8. Queda por probar cuánto ayudaría incorporar esas dos penalizaciones desde el primer estado.
 
 ## Reproducción
 
