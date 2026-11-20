@@ -59,5 +59,16 @@ class TestEstructura(unittest.TestCase):
                           "el README no documenta " + metodo)
 
 
+    def test_informe_parte_a_cubre_los_temas(self):
+        # la issue 21 pide estos tres temas en el informe
+        with open(ruta("docs", "informe_parte_a.md"), "r",
+                  encoding="utf-8") as f:
+            informe = f.read()
+        for tema in ["Representación del estado y espacio de búsqueda",
+                     "Restricciones y modelado del CSP",
+                     "Análisis de BFS e IDDFS"]:
+            self.assertIn(tema, informe)
+
+
 if __name__ == "__main__":
     unittest.main()

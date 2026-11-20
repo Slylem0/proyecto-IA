@@ -56,6 +56,12 @@ python -m experimentos.comparar 60
 Los casos pequeños de `datos/casos_pequenos/` (con y sin solución) están
 explicados y contados a mano en `docs/casos_pequenos.md`.
 
+## Documentación
+
+- [Formato de los archivos de datos](docs/formato_datos.md)
+- [Informe: parte A](docs/informe_parte_a.md): representación del
+  estado, modelado del CSP y análisis de BFS e IDDFS.
+
 ## Contrato entre módulos
 
 Los módulos se comunican solo por la interfaz definida en la issue #1:

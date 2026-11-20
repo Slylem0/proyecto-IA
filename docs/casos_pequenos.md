@@ -85,8 +85,9 @@ franjas:    dias;Lunes;Martes / 07:00-09:00 / 09:00-11:00
 ```
 
 Hay exactamente 4 casillas (2 días × 2 franjas × 1 salón) para 4 clases
-con profesores y grupos distintos. Cualquier reparto de las 4 clases en
-las 4 casillas es válido: 4! = **24 soluciones**.
+con grupos distintos y dos profesores. Como hay un solo salón, las cuatro
+casillas corresponden a horarios distintos. Cualquier reparto de las
+4 clases es válido: 4! = **24 soluciones**.
 
 ### caso6_al_limite
 
