@@ -60,6 +60,7 @@ explicados y contados a mano en `docs/casos_pequenos.md`.
 
 - [Formato de los archivos de datos](docs/formato_datos.md)
 - [Informe del proyecto](docs/informe.md): modelo, algoritmos, pruebas y resultados.
+- [Informe del proyecto en PDF](docs/Informe-de-horarios-academicos.pdf).
 
 ## Contrato entre módulos
 
