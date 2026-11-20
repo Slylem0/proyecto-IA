@@ -381,9 +381,9 @@ Lectura de la tabla:
    de explicar y explora menos nodos. Su problema es la memoria: guarda
    la frontera y los visitados completos, y en este problema la frontera
    del último nivel puede tener decenas de miles de estados.
-2. **IDDFS es la opción cuando la memoria es el límite**: usa espacio
-   que, para un factor de ramificación fijo, guarda una cantidad de
-   estados lineal en la profundidad, a cambio de reexplorar los niveles
+2. **IDDFS es la opción cuando la memoria es el límite**: para un factor
+   de ramificación fijo, la cantidad de estados que guarda crece
+   linealmente con la profundidad. A cambio, reexplora los niveles
    anteriores. En las mediciones fue más rápido en tiempo de reloj, pero
    exploró bastantes más nodos.
 3. **La optimalidad en pasos no aporta nada aquí**: todas las soluciones
