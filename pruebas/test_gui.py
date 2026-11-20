@@ -1,3 +1,4 @@
+import gc
 import os
 import shutil
 import tempfile
@@ -36,6 +37,8 @@ class TestVentana(unittest.TestCase):
         self.app.withdraw()  # ventana oculta durante la prueba
 
     def tearDown(self):
+        for callback in self.app.tk.call("after", "info"):
+            self.app.after_cancel(callback)
         self.app.destroy()
 
     def _examinar(self, nombre, ruta):
@@ -102,6 +105,57 @@ class TestVentana(unittest.TestCase):
         ocupadas = [c for c in self.app.grilla.celdas.values()
                     if c.cget("text")]
         self.assertGreater(len(ocupadas), 0)
+
+    def test_flujo_completo_con_archivos_de_ejemplo(self):
+        # Libera en el hilo principal los widgets de otras pruebas.
+        gc.collect()
+        # El diálogo nativo se sustituye para seleccionar los archivos.
+        for nombre, etiqueta in self.app.etiquetas_ruta.items():
+            ruta = os.path.join(DATOS, nombre)
+            boton = next(widget for widget in etiqueta.master.winfo_children()
+                         if widget.winfo_class() == "TButton")
+            with mock.patch.object(main.filedialog, "askopenfilename",
+                                   return_value=ruta):
+                boton.invoke()
+            self.assertEqual(self.app.archivos[nombre], ruta)
+            self.assertIn("✔", self.app.etiquetas_estado[nombre].cget("text"))
+
+        materias = {"Calculo (G1)", "Algebra (G2)", "Fisica (G1)",
+                    "Programacion (G2)"}
+        costos = {"BFS": "7", "Costo uniforme": "4", "IDDFS": "7", "A*": "4"}
+        for cantidad, algoritmo in enumerate(costos, start=1):
+            with self.subTest(algoritmo=algoritmo):
+                self.app.combo.set(algoritmo)
+                self.app.boton_generar.invoke()
+                self.assertTrue(self.app.boton_generar.instate(["disabled"]))
+
+                def esperar_resultado():
+                    if self.app.boton_generar.instate(["disabled"]):
+                        self.app.after(main.INTERVALO_SONDEO, esperar_resultado)
+                    else:
+                        self.app.quit()
+
+                plazo = self.app.after(10000, self.app.quit)
+                self.app.after_idle(esperar_resultado)
+                with mock.patch.object(main.messagebox, "showerror") as error:
+                    self.app.mainloop()
+                self.app.after_cancel(plazo)
+                error.assert_not_called()
+
+                self.assertTrue(self.app.boton_generar.instate(["!disabled"]))
+                self.assertEqual(self.app.grilla.mensaje.cget("text"),
+                                 f"Horario encontrado con {algoritmo}.")
+                self.assertEqual(len(self.app.grilla.celdas), 9)
+                clases = [
+                    bloque.splitlines()[0]
+                    for celda in self.app.grilla.celdas.values()
+                    for bloque in celda.cget("text").split("\n\n") if bloque
+                ]
+                self.assertCountEqual(clases, materias)
+                filas = self.app.estadisticas.filas()
+                self.assertEqual(len(filas), cantidad)
+                self.assertEqual(filas[-1][0], algoritmo)
+                self.assertEqual(filas[-1][3:], ("Si", costos[algoritmo]))
 
     def test_generar_con_iddfs(self):
         self._cargar_los_cuatro(DATOS)
