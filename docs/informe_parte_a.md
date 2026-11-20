@@ -110,7 +110,7 @@ en el nivel `n`. En total:
 1 + b + b² + ... + b^n = (b^(n+1) - 1) / (b - 1)     nodos
 ```
 
-El crecimiento es exponencial en el número de clases, que es la razón
+Si `b = 1`, la suma es `n + 1`. Para `b > 1`, el crecimiento es exponencial en el número de clases, que es la razón
 por la que los casos grandes no terminan con búsqueda no informada.
 
 **Ejemplo base** (`datos/`): 4 clases, 3 días, 3 franjas y 2 salones.
@@ -137,10 +137,10 @@ repartos posibles (58 %). El podado descarta el 41 % del árbol teórico
 del ejemplo.
 
 En los casos grandes el número explota: el caso 4 tiene 7 clases y 12
-casillas (`12^0 + ... + 12^7 = 39.069.245` nodos sin poda) y el caso 5
+casillas (`12^0 + ... + 12^7 = 39.089.245` nodos sin poda) y el caso 5
 tiene 8 clases y 18 casillas (`18^0 + ... + 18^8 = 11.668.193.551`).
-Por eso BFS e IDDFS dejan de terminar en esos casos, mientras A* los
-resuelve en pocos nodos.
+BFS e IDDFS terminan en el caso 4 y superan el límite de 60 s en el
+caso 5. A* resuelve ambos en pocos nodos.
 
 ## 2. Restricciones y modelado del CSP
 
@@ -184,12 +184,11 @@ la lista de pendientes. El diccionario de asignaciones tampoco puede
 tener una clave repetida. `restricciones_cumplidas` la revisa igual,
 para detectar estados construidos a mano.
 
-### 2.3 Poda: dominio y comprobación hacia adelante
+### 2.3 Poda: filtrado del dominio
 
 `dominio(estado, clase)` recorre las `b` combinaciones y descarta las
-que violan R1, R2 o R3 con alguna clase ya asignada. Esto equivale a una
-**comprobación hacia adelante** (*forward checking*) de una variable
-contra las asignadas:
+que violan R1, R2 o R3 con alguna clase ya asignada. El filtrado comprueba la consistencia con las asignaciones
+previas:
 
 - se detectan los choques con el pasado;
 - no se detectan choques entre dos clases futuras (por ejemplo, dos
@@ -247,8 +246,9 @@ Los dos algoritmos implementan la interfaz `Problema`
 `Resultado(algoritmo, solucion, nodos_explorados, tiempo)`. La medición
 es la misma para todos:
 
-- **nodos explorados:** se suma 1 cada vez que un estado se saca de la
-  frontera y se expande;
+- **nodos explorados:** BFS cuenta los estados que desencola. IDDFS cuenta
+  cada llamada a la búsqueda limitada, incluidas las metas y los estados
+  que alcanzan el límite de profundidad.
 - **tiempo:** `time.perf_counter()` antes y después de la búsqueda.
 
 Ninguno de los dos usa `costo`: son estrategias no informadas que solo
@@ -301,7 +301,7 @@ termina en 60 s.
 cada estado se alcanza por un único camino, así que en este problema el
 conjunto no llega a descartar estados repetidos. Se mantiene como
 salvaguarda (y para que BFS siga siendo correcto si cambia el orden de
-asignación), a un costo de memoria bajo comparado con la cola.
+asignación), con un costo adicional de memoria para el conjunto.
 
 ### 3.3 IDDFS (profundidad iterativa)
 
@@ -339,7 +339,7 @@ un árbol y no hay ciclos.
 | Optimalidad en pasos | Sí (encuentra al nivel mínimo), pero todas las soluciones tienen `n` pasos |
 | Optimalidad en costo | No: ignora `costo` |
 | Tiempo | `O(b^n)`, con el costo extra de repetir los niveles |
-| Memoria | `O(n)` estados en la pila (cada uno con hasta `n` asignaciones) |
+| Memoria | `O(n)` marcos de pila y hasta `O(b · n)` estados por las listas de sucesores (cada estado puede contener `n` asignaciones) |
 
 **Medición en el ejemplo base.** IDDFS exploró 4.959 nodos en 0,0138 s
 y también encontró un horario de costo 7. Son 16 veces más nodos que
@@ -367,15 +367,13 @@ Lectura de la tabla:
 
 - **BFS explora menos nodos** en todos los casos donde ambos terminan,
   porque se detiene apenas genera la primera meta y no repite niveles.
-- **IDDFS explora más nodos** (entre 6 y 16 veces más en estos casos),
+- **IDDFS explora más nodos** (entre 3,9 y 16,1 veces más en estos casos),
   pero suele tardar menos en tiempo de reloj: evita el costo de mantener
   la cola y el conjunto de visitados, y trabaja con listas chicas.
-- **La diferencia crece con el tamaño**: en el caso 4 IDDFS explora
-  7 veces más nodos que BFS, y la ventaja de memoria es lo que compensa
-  ese trabajo extra.
 - **Ninguno de los dos optimiza el costo.** En los casos 1 a 4 sus
-  horarios cuestan 8, 8, 9 y 8, mientras costo uniforme y A* encuentran
-  horarios de costo 4, 6, 8 y 7.
+  horarios cuestan 8, 8, 9 y 8. A* encuentra horarios de costo 4, 6, 8 y 7.
+  Costo uniforme coincide con A* en los tres primeros casos y supera
+  el límite de 60 s en el cuarto.
 
 ### 3.5 Conclusiones
 
@@ -384,7 +382,8 @@ Lectura de la tabla:
    la frontera y los visitados completos, y en este problema la frontera
    del último nivel puede tener decenas de miles de estados.
 2. **IDDFS es la opción cuando la memoria es el límite**: usa espacio
-   lineal en la profundidad, a cambio de reexplorar los niveles
+   que, para un factor de ramificación fijo, guarda una cantidad de
+   estados lineal en la profundidad, a cambio de reexplorar los niveles
    anteriores. En las mediciones fue más rápido en tiempo de reloj, pero
    exploró bastantes más nodos.
 3. **La optimalidad en pasos no aporta nada aquí**: todas las soluciones
