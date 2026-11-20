@@ -1,0 +1,4 @@
+# franjas.txt
+dias;Lunes
+07:00-09:00
+09:00-11:00

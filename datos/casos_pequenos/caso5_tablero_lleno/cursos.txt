@@ -1,0 +1,5 @@
+# cursos.txt
+Calculo;Prof_A;G1
+Algebra;Prof_B;G2
+Fisica;Prof_A;G3
+Quimica;Prof_B;G4

@@ -22,7 +22,8 @@ proyecto-IA/
 ├── algoritmos/  Estrategias de busqueda (BFS, costo uniforme, profundidad iterativa, A*)
 ├── gui/         Interfaz grafica con tkinter
 ├── datos/       Archivos de entrada: profesores.txt, cursos.txt, salones.txt, franjas.txt
-│   └── casos/   caso1 ... caso8, casos de tamano creciente (issue #20)
+│   ├── casos/   caso1 ... caso8, casos de tamano creciente (issue #20)
+│   └── casos_pequenos/ casos chicos con y sin solucion, verificables a mano (issue #19)
 ├── experimentos/ Generador de casos y comparacion de algoritmos (issue #20)
 ├── docs/        Documentacion (formato de datos, informes)
 └── pruebas/     Pruebas automatizadas con unittest
@@ -51,6 +52,9 @@ por corrida, 60 por defecto; la tabla queda en `experimentos/resultados.md`):
 ```bash
 python -m experimentos.comparar 60
 ```
+
+Los casos pequeños de `datos/casos_pequenos/` (con y sin solución) están
+explicados y contados a mano en `docs/casos_pequenos.md`.
 
 ## Contrato entre módulos
 
