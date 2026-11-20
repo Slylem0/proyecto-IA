@@ -52,6 +52,12 @@ por corrida, 60 por defecto; la tabla queda en `experimentos/resultados.md`):
 python -m experimentos.comparar 60
 ```
 
+## Documentación
+
+- [Formato de los archivos de datos](docs/formato_datos.md)
+- [Informe: parte A](docs/informe_parte_a.md): representación del
+  estado, modelado del CSP y análisis de BFS e IDDFS.
+
 ## Contrato entre módulos
 
 Los módulos se comunican solo por la interfaz definida en la issue #1:
