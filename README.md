@@ -61,6 +61,8 @@ explicados y contados a mano en `docs/casos_pequenos.md`.
 - [Formato de los archivos de datos](docs/formato_datos.md)
 - [Informe: parte A](docs/informe_parte_a.md): representación del
   estado, modelado del CSP y análisis de BFS e IDDFS.
+- [Informe: parte B](docs/informe_parte_b.md): función de costo,
+  heurística de A*, pruebas, comparación y conclusiones.
 
 ## Contrato entre módulos
 
