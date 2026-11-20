@@ -1,3 +1,5 @@
+import queue
+import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
@@ -18,6 +20,9 @@ ALGORITMOS = {
     "A*": a_estrella,
 }
 
+# cada cuantos milisegundos se revisa si el hilo ya termino
+INTERVALO_SONDEO = 100
+
 
 class Aplicacion(tk.Tk):
     """Ventana principal."""
@@ -33,6 +38,9 @@ class Aplicacion(tk.Tk):
         self.etiquetas_estado = {}
         for nombre in ARCHIVOS:
             self.archivos[nombre] = None
+
+        self.cola = queue.Queue()  # resultado que deja el hilo
+        self.hilo = None
 
         self._crear_panel_carga()
         self._crear_panel_configuracion()
@@ -71,7 +79,7 @@ class Aplicacion(tk.Tk):
             self.etiquetas_estado[nombre] = etiqueta_estado
 
     def _crear_panel_configuracion(self):
-        """Menu de algoritmos y boton Generar Horario."""
+        """Menu de algoritmos, estado y boton Generar Horario."""
         marco = ttk.LabelFrame(self, text="Configuracion", padding=10)
         marco.pack(fill="x", padx=10, pady=5)
 
@@ -81,8 +89,12 @@ class Aplicacion(tk.Tk):
         self.combo.set(list(ALGORITMOS)[0])
         self.combo.pack(side="left", padx=8)
 
-        ttk.Button(marco, text="Generar Horario",
-                   command=self.generar).pack(side="right")
+        self.boton_generar = ttk.Button(marco, text="Generar Horario",
+                                        command=self.generar)
+        self.boton_generar.pack(side="right")
+
+        self.estado = ttk.Label(marco, text="", foreground="gray")
+        self.estado.pack(side="right", padx=8)
 
     def examinar(self, nombre):
         """Abre el explorador y valida el archivo elegido."""
@@ -105,7 +117,7 @@ class Aplicacion(tk.Tk):
             self.archivos[nombre] = None
 
     def generar(self):
-        """Revisa los 4 archivos y ejecuta el algoritmo del menu."""
+        """Valida los archivos y lanza el algoritmo en segundo plano."""
         faltan = [nombre for nombre in ARCHIVOS
                   if not self.archivos[nombre]]
         if faltan:
@@ -121,8 +133,49 @@ class Aplicacion(tk.Tk):
             return
 
         nombre = self.combo.get()
-        algoritmo = ALGORITMOS[nombre]
-        resultado = algoritmo(problema)
+        self._iniciar(nombre, ALGORITMOS[nombre], problema)
+
+    def _iniciar(self, nombre, algoritmo, problema):
+        """Arranca el hilo que ejecuta el algoritmo elegido."""
+        self.combo.config(state="disabled")
+        self.boton_generar.config(state="disabled")
+        self.estado.config(text="Ejecutando " + nombre + "...")
+
+        self.hilo = threading.Thread(target=self._ejecutar,
+                                     args=(algoritmo, problema),
+                                     daemon=True)
+        self.hilo.start()
+        self.after(INTERVALO_SONDEO, self._revisar)
+
+    def _ejecutar(self, algoritmo, problema):
+        """Corre el algoritmo (en el hilo) y deja el resultado en la cola."""
+        try:
+            self.cola.put(("ok", problema, algoritmo(problema)))
+        except Exception as error:  # el error se avisa en la ventana
+            self.cola.put(("error", str(error)))
+
+    def _revisar(self):
+        """Busca el resultado en la cola; si no esta, vuelve a preguntar."""
+        try:
+            datos = self.cola.get_nowait()
+        except queue.Empty:
+            self.after(INTERVALO_SONDEO, self._revisar)
+            return
+
+        self._habilitar()
+        if datos[0] == "error":
+            messagebox.showerror("Error al ejecutar", datos[1])
+        else:
+            self._mostrar_resultado(datos[1], datos[2])
+
+    def _habilitar(self):
+        """Vuelve a dejar el menu y el boton listos para otra ejecucion."""
+        self.combo.config(state="readonly")
+        self.boton_generar.config(state="normal")
+        self.estado.config(text="")
+
+    def _mostrar_resultado(self, problema, resultado):
+        """Dibuja el horario en la grilla y agrega la fila de estadisticas."""
         self.grilla.mostrar(problema, resultado)
         self.estadisticas.agregar(problema, resultado)
 
